@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lijstje – doe mee</title>
+<meta property="og:title" content="Doe mee met onze boodschappenlijst">
+<meta property="og:description" content="Tik om mee te doen in Lijstje.">
+<link rel="icon" href="icon.png">
+<style>
+:root{--bg:#f6ead0;--hd:#0e6ba8;--ink:#14324a;--soft:#6a8aa0;--acc:#ffb703}
+*{box-sizing:border-box}
+body{margin:0;font:17px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:grid;place-items:center;text-align:center}
+.c{width:100%;max-width:420px;padding:28px 22px}
+img{width:88px;height:88px;border-radius:22px}
+h1{color:var(--hd);font-size:28px;line-height:1.15;margin:14px 0 6px}
+p{margin:6px 0 16px}
+.code{font:800 34px/1 system-ui,sans-serif;letter-spacing:.14em;color:var(--hd);background:#fff;border-radius:14px;padding:14px;margin:16px 0}
+a.b{display:block;background:var(--hd);color:#fff;text-decoration:none;font-weight:700;border-radius:14px;padding:16px;margin:10px 0}
+a.s{background:var(--acc);color:#3d2a00}
+small{color:var(--soft);display:block}
+ol{text-align:left;color:var(--soft);font-size:15px;padding-left:20px}
+</style>
+</head>
+<body>
+<div class="c">
+  <img src="icon.png" alt="">
+  <div id="main"></div>
+</div>
+<script>
+{
+  const API = 'https://script.google.com/macros/s/AKfycbwXs1VQE3uY8lSj_eBHGW6gHy2V0oWVE06IwOHSfXndYixPG0WEGaBP7N3Jm3wbMbR77g/exec';
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const code = (new URLSearchParams(location.search).get('g') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const main = document.getElementById('main');
+  const intent = c => 'intent://join/' + c + '#Intent;scheme=lijstje;package=be.olivivo.lijstje;S.browser_fallback_url=' + encodeURIComponent(location.origin + location.pathname + '#download') + ';end';
+  const download = '<a class="b s" href="Lijstje.apk">Download Lijstje voor Android</a><ol><li>Tik op downloaden en open het bestand.</li><li>Sta "installeren uit deze bron" toe als Android dat vraagt.</li><li>Kom daarna terug naar deze link.</li></ol>';
+  if (/^[A-Z0-9]{4,9}$/.test(code)) {
+    main.innerHTML = '<h1 id="t">Doe mee met de lijst</h1><p>Tik op de knop: Lijstje opent en voegt je meteen toe.</p>' +
+      '<a class="b" id="open" href="' + intent(code) + '">Open in Lijstje</a>' +
+      '<div class="code">' + esc(code) + '</div><small>Werkt de knop niet? Open Lijstje, kies "Meedoen met code" en typ de code hierboven.</small>' +
+      '<h1 style="font-size:20px;margin-top:28px">Nog geen app?</h1>' + download;
+    fetch(API + '?a=pull&g=' + code + '&since=0').then(r => r.json()).then(j => {
+      const g = (j.rows || []).find(r => r.path === 'g/' + code);
+      if (g && g.deleted) { document.getElementById('t').textContent = 'Deze groep bestaat niet meer'; return; }
+      if (g && g.data && g.data.name) document.getElementById('t').textContent = 'Doe mee met “' + g.data.name + '”';
+    }).catch(() => {});
+  } else {
+    main.innerHTML = '<h1>Lijstje</h1><p>Samen boodschappen doen, zonder account.</p>' + download;
+  }
+}
+</script>
+</body>
+</html>
